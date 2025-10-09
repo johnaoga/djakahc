@@ -1,0 +1,50 @@
+name: News
+description: Publish a news item to the website
+labels: ["type:news"]
+body:
+  - type: dropdown
+    id: lang
+    attributes:
+      label: Language
+      description: Select the language for this news item
+      options:
+        - fr
+        - en
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      placeholder: e.g. Match result vs XYZ
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary (short)
+      placeholder: One or two sentences
+  - type: input
+    id: cover
+    attributes:
+      label: Cover image relative path (optional)
+      placeholder: e.g. images/news/2025-10-09-victory.jpg
+  - type: input
+    id: tags
+    attributes:
+      label: Tags (comma separated)
+      placeholder: e.g. match,senior,men
+  - type: input
+    id: categories
+    attributes:
+      label: Categories (comma separated)
+      placeholder: e.g. results
+  - type: textarea
+    id: content
+    attributes:
+      label: Content (Markdown)
+      description: Main content of the article in Markdown
+      render: markdown
+    validations:
+      required: true

@@ -1,0 +1,39 @@
+name: Player
+description: Add or update a player profile
+labels: ["type:player"]
+body:
+  - type: dropdown
+    id: lang
+    attributes:
+      label: Language
+      options: [fr, en]
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: name
+    attributes:
+      label: Player full name
+    validations:
+      required: true
+  - type: dropdown
+    id: gender
+    attributes:
+      label: Gender
+      options: [men, women]
+      default: 0
+  - type: input
+    id: category
+    attributes:
+      label: Category
+      placeholder: Senior, U18, etc.
+  - type: input
+    id: photo
+    attributes:
+      label: Photo relative path (optional)
+      placeholder: images/players/john-doe.jpg
+  - type: textarea
+    id: notes
+    attributes:
+      label: Bio / Notes (Markdown)
+      render: markdown

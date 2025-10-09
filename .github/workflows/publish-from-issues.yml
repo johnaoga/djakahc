@@ -1,0 +1,76 @@
+name: Publish from Issues
+
+on:
+  issues:
+    types: [opened, edited, labeled, reopened]
+
+permissions:
+  contents: write
+  issues: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Ensure labels exist
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const toEnsure = [
+              { name: 'type:news', color: '0366d6', description: 'Website: News item' },
+              { name: 'type:competition', color: '0e8a16', description: 'Website: Competition' },
+              { name: 'type:player', color: 'b60205', description: 'Website: Player' },
+              { name: 'lang:fr', color: '5319e7', description: 'French content' },
+              { name: 'lang:en', color: 'e99695', description: 'English content' },
+            ];
+            for (const l of toEnsure) {
+              try {
+                await github.rest.issues.getLabel({ owner: context.repo.owner, repo: context.repo.repo, name: l.name });
+              } catch (e) {
+                await github.rest.issues.createLabel({ owner: context.repo.owner, repo: context.repo.repo, name: l.name, color: l.color, description: l.description });
+              }
+            }
+
+      - name: Add lang label based on form
+        if: contains(github.event.issue.labels.*.name, 'type:news') || contains(github.event.issue.labels.*.name, 'type:competition') || contains(github.event.issue.labels.*.name, 'type:player')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const body = context.payload.issue.body || '';
+            const m = body.match(/^###\s+Language\n([\s\S]*?)(?:\n### |$)/mi);
+            const lang = (m && m[1] || '').trim().toLowerCase();
+            if (lang === 'fr' || lang === 'en') {
+              await github.rest.issues.addLabels({ owner: context.repo.owner, repo: context.repo.repo, issue_number: context.issue.number, labels: [`lang:${lang}`] });
+            }
+
+      - name: Install script deps
+        run: |
+          echo "No deps"
+
+      - name: Generate content from issue
+        env:
+          GITHUB_EVENT_PATH: ${{ github.event_path }}
+        run: |
+          node scripts/issue-to-content.mjs
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/**
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(content): generate from #${{ github.event.issue.number }}"
+            git push
+          else
+            echo "No content changes"
+          fi

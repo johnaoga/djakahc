@@ -1,0 +1,48 @@
+name: Competition
+description: Publish a competition to the website
+labels: ["type:competition"]
+body:
+  - type: dropdown
+    id: lang
+    attributes:
+      label: Language
+      options: [fr, en]
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Title
+    validations:
+      required: true
+  - type: input
+    id: startDate
+    attributes:
+      label: Start date (YYYY-MM-DD)
+    validations:
+      required: true
+  - type: input
+    id: endDate
+    attributes:
+      label: End date (YYYY-MM-DD)
+  - type: input
+    id: location
+    attributes:
+      label: Location
+  - type: input
+    id: cover
+    attributes:
+      label: Cover image relative path (optional)
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary (short)
+  - type: textarea
+    id: content
+    attributes:
+      label: Description (Markdown)
+      render: markdown
+      description: Main content of the competition page
+    validations:
+      required: true
