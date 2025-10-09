@@ -1,0 +1,7 @@
+<meta name="description" content="Djaka Handball Club – Site officiel"/>
+<link rel="icon" href="/images/logo.png"/>
+<meta property="og:title" content="{{ if .Title }}{{ .Title }} | {{ end }}{{ .Site.Title }}" />
+<meta property="og:type" content="website" />
+<meta property="og:image" content="{{ (resources.GetMatch "images/*" | default (resources.Get "images/placeholder-1.svg")) | relURL }}" />
+<meta property="og:locale" content="{{ .Site.Language.Lang }}" />
+<meta name="theme-color" content="{{ .Site.Params.primaryColor | default "#C8102E" }}"/>

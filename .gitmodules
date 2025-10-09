@@ -1,0 +1,6 @@
+[submodule "themes/agnes"]
+	path = themes/agnes
+	url = https://github.com/dchucks/agnes-hugo-theme
+[submodule "themes/sessionize-event"]
+	path = themes/sessionize-event
+	url = https://github.com/medialesson/hugo-theme-event

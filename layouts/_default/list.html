@@ -1,0 +1,15 @@
+{{ define "main" }}
+  <h1>{{ .Title }}</h1>
+  {{ with .Content }}<div class="card" style="margin-bottom:16px">{{ . }}</div>{{ end }}
+  <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:16px;">
+    {{ range .Paginator.Pages }}
+      <a class="card" href="{{ .RelPermalink }}">
+        {{ with .Params.cover }}<img src="{{ . | relURL }}" alt="" style="width:100%; height:160px; object-fit:cover; border-radius:6px;" />{{ end }}
+        <h3 style="margin:8px 0">{{ .Title }}</h3>
+        <small>{{ .Date.Format "02 Jan 2006" }}</small>
+        <p>{{ .Summary }}</p>
+      </a>
+    {{ end }}
+  </div>
+  {{ template "_internal/pagination.html" . }}
+{{ end }}

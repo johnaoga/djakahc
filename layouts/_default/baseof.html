@@ -1,0 +1,86 @@
+{{/* Base layout overriding theme to inject header, sidebar, footer and language switcher. */}}
+<!DOCTYPE html>
+<html lang="{{ .Site.Language.Lang }}">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{{ block "title" . }}{{ if .Title }}{{ .Title }} | {{ end }}{{ .Site.Title }}{{ end }}</title>
+    {{ partialCached "head/meta.html" . }}
+    <!-- Font Awesome for social icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" referrerpolicy="no-referrer" />
+    {{/* Use theme assets if present */}}
+    {{- if resources.Get "css/main.css" -}}
+      {{ $css := resources.Get "css/main.css" | minify }}
+      <link rel="stylesheet" href="{{ $css.RelPermalink }}" />
+    {{- end -}}
+  <style>
+    :root{--primary: {{ .Site.Params.primaryColor | default "#C8102E" }}; --dark: {{ .Site.Params.darkColor | default "#000" }};}
+    body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Helvetica, Arial, sans-serif; margin:0;}
+    a{color: var(--primary); text-decoration:none}
+    header{position:sticky; top:0; z-index:50; background:#fff; border-bottom:2px solid var(--primary)}
+    .nav{display:flex; align-items:center; justify-content:space-between; padding:10px 0}
+    .nav a.logo{display:flex; align-items:center; gap:10px; color:var(--dark); font-weight:700}
+    .nav img{height:40px}
+    .menu{display:flex; gap:14px; flex-wrap:wrap}
+    .main{display:flex; gap:24px}
+    .content{flex:1; min-width:0}
+    .sidebar{position:sticky; top:64px; width:280px; align-self:flex-start}
+    footer{margin-top:40px; padding:24px 0; background:#111; color:#eee}
+    .footer-grid{display:flex; gap:24px; flex-wrap:wrap; justify-content:space-between; align-items:center}
+    .tag{display:inline-block; background:#f3f3f3; padding:2px 8px; border-radius:12px; font-size:12px}
+    .card{border:1px solid #eaeaea; border-radius:8px; padding:12px;}
+    /* Increased horizontal margins */
+    .container{max-width:1200px; margin:0 auto; padding:0 24px}
+    @media (min-width: 768px){ .container{ padding: 0 32px } }
+    @media (min-width: 1200px){ .container{ padding: 0 40px } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <a class="logo" href="{{ "/" | relLangURL }}">
+        <img src="{{ .Site.Params.logo | relURL }}" alt="logo" />
+        <span>{{ .Site.Title }}</span>
+      </a>
+      <nav class="menu">
+        {{ range .Site.Menus.main }}
+          <a href="{{ .URL }}">{{ .Name }}</a>
+        {{ end }}
+        {{/* Language switcher */}}
+        {{/* Language switcher with flags */}}
+        {{ $current := .Site.Language.Lang }}
+        {{ range .Sites }}
+          {{ $lang := .Language.Lang }}
+          {{ if ne $lang $current }}
+            {{ $flag := cond (eq $lang "fr") "🇫🇷" (cond (eq $lang "en") "🇬🇧" "🏳️") }}
+            <a class="tag" href="{{ printf "%s/" .LanguagePrefix | relURL }}">{{ $flag }} {{ .Language.LanguageName }}</a>
+          {{ end }}
+        {{ end }}
+      </nav>
+    </div>
+  </header>
+
+  <div class="container main">
+    <main class="content">{{ block "main" . }}{{ end }}</main>
+    <aside class="sidebar">{{ partial "sidebar.html" . }}</aside>
+  </div>
+
+  <footer>
+    <div class="container footer-grid">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <img src="{{ .Site.Params.logo | relURL }}" alt="logo" style="height:36px" />
+        <span>{{ .Site.Title }}</span>
+      </div>
+      <div class="menu">
+        {{ range .Site.Menus.main }}<a style="color:#ddd" href="{{ .URL }}">{{ .Name }}</a>{{ end }}
+      </div>
+      <div>
+        <a style="color:#ddd; margin-right:14px" href="#" aria-label="Facebook"><i class="fa-brands fa-facebook"></i></a>
+        <a style="color:#ddd; margin-right:14px" href="#" aria-label="Instagram"><i class="fa-brands fa-instagram"></i></a>
+        <a style="color:#ddd; margin-right:14px" href="#" aria-label="X"><i class="fa-brands fa-x-twitter"></i></a>
+        <a style="color:#ddd" href="#" aria-label="YouTube"><i class="fa-brands fa-youtube"></i></a>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

@@ -1,0 +1,96 @@
+baseURL = 'https://djakahc.org/'
+languageCode = 'en-us'
+title = 'Djaka Handball Club'
+
+defaultContentLanguage = 'fr'
+enableRobotsTXT = true
+paginate = 10
+theme = 'agnes'
+
+[taxonomies]
+  tag = 'tags'
+  category = 'categories'
+
+[params]
+  logo = 'images/logo.png'
+  primaryColor = '#C8102E' # red
+  darkColor = '#000000'    # black
+  accentBlue = '#1D4ED8'   # optional kind of blue
+  accentOrange = '#EA580C' # optional orange
+
+  [languages]
+    [languages.fr]
+      languageName = 'Français'
+      weight = 1
+      title = 'Djaka Handball Club'
+      contentDir = 'content/fr'
+   
+    # Main menu (FR)
+    [[languages.fr.menu.main]]
+      identifier = 'home'
+      name = 'Accueil'
+      url = '/'
+      weight = 1
+    [[languages.fr.menu.main]]
+      identifier = 'about'
+      name = 'À propos'
+      url = '/about/'
+      weight = 2
+    [[languages.fr.menu.main]]
+      identifier = 'players'
+      name = 'Joueurs'
+      url = '/players/'
+      weight = 3
+    [[languages.fr.menu.main]]
+      identifier = 'competitions'
+      name = 'Compétitions'
+      url = '/competitions/'
+      weight = 4
+    [[languages.fr.menu.main]]
+      identifier = 'news'
+      name = 'Actualités'
+      url = '/news/'
+      weight = 5
+    [[languages.fr.menu.main]]
+      identifier = 'gallery'
+      name = 'Galerie'
+      url = '/gallery/'
+      weight = 6
+
+    [languages.en]
+      languageName = 'English'
+      weight = 2
+      title = 'Djaka Handball Club'
+      contentDir = 'content/en'
+
+    # Main menu (EN)
+    [[languages.en.menu.main]]
+      identifier = 'home'
+      name = 'Home'
+      url = '/en/'
+      weight = 1
+    [[languages.en.menu.main]]
+      identifier = 'about'
+      name = 'About'
+      url = '/en/about/'
+      weight = 2
+    [[languages.en.menu.main]]
+      identifier = 'players'
+      name = 'Players'
+      url = '/en/players/'
+      weight = 3
+    [[languages.en.menu.main]]
+      identifier = 'competitions'
+      name = 'Competitions'
+      url = '/en/competitions/'
+      weight = 4
+    [[languages.en.menu.main]]
+      identifier = 'news'
+      name = 'News'
+      url = '/en/news/'
+      weight = 5
+    [[languages.en.menu.main]]
+      identifier = 'gallery'
+      name = 'Gallery'
+      url = '/en/gallery/'
+      weight = 6
