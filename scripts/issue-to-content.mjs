@@ -39,25 +39,26 @@ function todayISO() {
 
 function buildFrontMatter(section, data) {
   const lines = ['---'];
-  lines.push(`title: "${data.title.replace(/"/g, '\\"')}"`);
+  lines.push(`title: "${data.title.replace(/\"/g, '\\\"')}"`);
   lines.push(`date: ${data.date || new Date().toISOString()}`);
   lines.push(`draft: false`);
 
   if (section === 'news') {
     lines.push(`highlight: ${data.highlight ? 'true' : 'false'}`);
-    if (data.summary) lines.push(`summary: "${data.summary.replace(/"/g, '\\"')}"`);
+    if (data.summary) lines.push(`summary: "${data.summary.replace(/\"/g, '\\\"')}"`);
     if (data.cover) lines.push(`cover: "${data.cover}"`);
-    if (data.tags && data.tags.length) lines.push(`tags: [${data.tags.map(t => `"${t}"`).join(', ')}]`);
-    if (data.categories && data.categories.length) lines.push(`categories: [${data.categories.map(t => `"${t}"`).join(', ')}]`);
+    if (data.tags && data.tags.length) lines.push(`tags: [${data.tags.map(t => `\"${t}\"`).join(', ')}]`);
+    if (data.categories && data.categories.length) lines.push(`categories: [${data.categories.map(t => `\"${t}\"`).join(', ')}]`);
+    if (data.gallery && data.gallery.length) lines.push(`gallery: [${data.gallery.map(g => `\"${g}\"`).join(', ')}]`);
   }
 
   if (section === 'competitions') {
     if (data.startDate) lines.push(`startDate: ${data.startDate}`);
     if (data.endDate) lines.push(`endDate: ${data.endDate}`);
-    if (data.location) lines.push(`location: "${data.location.replace(/"/g, '\\"')}"`);
-    if (data.summary) lines.push(`summary: "${data.summary.replace(/"/g, '\\"')}"`);
-    if (data.cover) lines.push(`cover: "${data.cover}"`);
-    lines.push(`gallery: []`);
+    if (data.location) lines.push(`location: \"${data.location.replace(/\"/g, '\\\"')}\"`);
+    if (data.summary) lines.push(`summary: \"${data.summary.replace(/\"/g, '\\\"')}\"`);
+    if (data.cover) lines.push(`cover: \"${data.cover}\"`);
+    if (data.gallery && data.gallery.length) lines.push(`gallery: [${data.gallery.map(g => `\"${g}\"`).join(', ')}]`);
   }
 
   if (section === 'players') {
@@ -115,14 +116,19 @@ function main() {
     data.cover = parseField(body, 'Cover image relative path (optional)');
     data.tags = parseCommaList(parseField(body, 'Tags (comma separated)'));
     data.categories = parseCommaList(parseField(body, 'Categories (comma separated)'));
+    // gallery field label from issue template
+    data.gallery = parseCommaList(parseField(body, 'Gallery images (comma separated, optional)'));
+    // cover field label may be updated; also try alternate label
+    if (!data.cover) data.cover = parseField(body, 'Cover image filename or static path (optional)');
     data.content = parseField(body, 'Content (Markdown)');
   } else if (section === 'competition') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
     data.startDate = parseField(body, 'Start date (YYYY-MM-DD)');
     data.endDate = parseField(body, 'End date (YYYY-MM-DD)');
     data.location = parseField(body, 'Location');
-    data.cover = parseField(body, 'Cover image relative path (optional)');
+    data.cover = parseField(body, 'Cover image relative path (optional)') || parseField(body, 'Cover image filename or static path (optional)');
     data.summary = parseField(body, 'Summary (short)');
+    data.gallery = parseCommaList(parseField(body, 'Gallery images (comma separated, optional)'));
     data.content = parseField(body, 'Description (Markdown)');
   } else if (section === 'player') {
     data.title = parseField(body, 'Player full name') || issue.title || 'Player';
@@ -139,7 +145,10 @@ function main() {
 
   const baseDir = path.join(process.cwd(), 'content', lang, contentSection);
   ensureDir(baseDir);
-  const filePath = path.join(baseDir, `${slug}.md`);
+  // Create a Hugo leaf bundle: one folder per item with an index.md
+  const itemDir = path.join(baseDir, slug);
+  ensureDir(itemDir);
+  const filePath = path.join(itemDir, 'index.md');
 
   const fm = buildFrontMatter(contentSection, data);
   const bodyContent = data.content || '';

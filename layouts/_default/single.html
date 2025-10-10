@@ -1,7 +1,15 @@
 {{ define "main" }}
   <article>
     <h1>{{ .Title }}</h1>
-    {{ with .Params.cover }}<img src="{{ . | relURL }}" alt="" style="width:100%; max-height:320px; object-fit:cover; border-radius:8px; margin:8px 0 16px;" />{{ end }}
+    {{- $cover := .Params.cover -}}
+    {{- if $cover -}}
+      {{- $cres := .Resources.GetMatch $cover -}}
+      {{- if $cres -}}
+        <img src="{{ $cres.RelPermalink }}" alt="" style="width:100%; max-height:320px; object-fit:cover; border-radius:8px; margin:8px 0 16px;" />
+      {{- else -}}
+        <img src="{{ $cover | relURL }}" alt="" style="width:100%; max-height:320px; object-fit:cover; border-radius:8px; margin:8px 0 16px;" />
+      {{- end -}}
+    {{- end -}}
 
     {{ if eq .Section "competitions" }}
       <div class="card" style="margin-bottom:16px">
@@ -16,7 +24,13 @@
       <h3>Galerie</h3>
       <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px;">
         {{ range .Params.gallery }}
-          <img src="{{ . | relURL }}" alt="" style="width:100%; height:160px; object-fit:cover; border-radius:6px;" />
+          {{- $g := . -}}
+          {{- $gres := $.Resources.GetMatch $g -}}
+          {{- if $gres -}}
+            <img src="{{ $gres.RelPermalink }}" alt="" style="width:100%; height:160px; object-fit:cover; border-radius:6px;" />
+          {{- else -}}
+            <img src="{{ $g | relURL }}" alt="" style="width:100%; height:160px; object-fit:cover; border-radius:6px;" />
+          {{- end -}}
         {{ end }}
       </div>
     {{ end }}

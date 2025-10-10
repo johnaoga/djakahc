@@ -33,11 +33,19 @@ body:
   - type: input
     id: cover
     attributes:
-      label: Cover image relative path (optional)
+      label: Cover image filename or static path (optional)
+      description: Prefer a bundle-local filename next to index.md (e.g., cover.jpg). Static paths also work (e.g., images/competitions/xxx.jpg).
+      placeholder: cover.jpg
   - type: textarea
     id: summary
     attributes:
       label: Summary (short)
+  - type: input
+    id: gallery
+    attributes:
+      label: Gallery images (comma separated, optional)
+      description: Prefer bundle-local filenames next to index.md (e.g., photo-1.jpg, photo-2.jpg)
+      placeholder: photo-1.jpg, photo-2.jpg
   - type: textarea
     id: content
     attributes:
