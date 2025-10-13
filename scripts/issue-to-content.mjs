@@ -52,6 +52,14 @@ function buildFrontMatter(section, data) {
     if (data.gallery && data.gallery.length) lines.push(`gallery: [${data.gallery.map(g => `\"${g}\"`).join(', ')}]`);
   }
 
+  // Editorial theme posts
+  if (section === 'posts') {
+    if (data.summary) lines.push(`summary: "${data.summary.replace(/\"/g, '\\\"')}"`);
+    if (data.featuredImage) lines.push(`featuredImage: "${data.featuredImage}"`);
+    if (data.tags && data.tags.length) lines.push(`tags: [${data.tags.map(t => `\"${t}\"`).join(', ')}]`);
+    if (data.categories && data.categories.length) lines.push(`categories: [${data.categories.map(t => `\"${t}\"`).join(', ')}]`);
+  }
+
   if (section === 'competitions') {
     if (data.startDate) lines.push(`startDate: ${data.startDate}`);
     if (data.endDate) lines.push(`endDate: ${data.endDate}`);
@@ -97,6 +105,7 @@ function main() {
     news: 'news',
     competition: 'competitions',
     player: 'players',
+    post: 'posts',
   };
   const contentSection = sectionMap[section];
   if (!contentSection) {
@@ -137,6 +146,14 @@ function main() {
     data.category = parseField(body, 'Category');
     data.photo = parseField(body, 'Photo relative path (optional)');
     data.content = parseField(body, 'Bio / Notes (Markdown)');
+  } else if (section === 'post') {
+    data.title = parseField(body, 'Title') || issue.title || 'Untitled';
+    data.summary = parseField(body, 'Summary (short)');
+    data.featuredImage = parseField(body, 'Featured image relative path (optional)');
+    if (!data.featuredImage) data.featuredImage = parseField(body, 'Cover image relative path (optional)') || parseField(body, 'Cover image filename or static path (optional)');
+    data.tags = parseCommaList(parseField(body, 'Tags (comma separated)'));
+    data.categories = parseCommaList(parseField(body, 'Categories (comma separated)'));
+    data.content = parseField(body, 'Content (Markdown)');
   }
 
   const datePrefix = todayISO();

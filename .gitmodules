@@ -4,3 +4,6 @@
 [submodule "themes/sessionize-event"]
 	path = themes/sessionize-event
 	url = https://github.com/medialesson/hugo-theme-event
+[submodule "themes/editorial"]
+	path = themes/editorial
+	url = https://github.com/johnaoga/editorial-hugo-theme

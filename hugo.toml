@@ -4,8 +4,10 @@ title = 'Djaka Handball Club'
 
 defaultContentLanguage = 'fr'
 enableRobotsTXT = true
-paginate = 10
-theme = 'agnes'
+theme = 'editorial'
+
+[pagination]
+  pagerSize = 10
 
 [taxonomies]
   tag = 'tags'
@@ -18,6 +20,30 @@ theme = 'agnes'
   accentBlue = '#1D4ED8'   # optional kind of blue
   accentOrange = '#EA580C' # optional orange
 
+  # Editorial theme specific params
+  brand = 'Djaka HC'
+
+  [params.home]
+    title = 'Djaka Handball Club'
+    subtitle = "Club de handball – Djaka HC"
+    image = '/images/logo.png'
+    blurb = "Bienvenue sur le site officiel du Djaka Handball Club. Retrouvez nos actualités, compétitions et galerie."
+    
+    [params.home.cta]
+      text = 'En savoir plus'
+      link = '/about/'
+
+  [params.contact]
+    email = 'contact@djakahc.org'
+    phone = '+242 000 0000'
+    address = 'Djaka HC, Abomey-Calavi, Bénin'
+
+  # Optional social icons in header
+  [[params.social]]
+    icon = 'github'
+    url = 'https://github.com/johnaoga'
+    title = 'GitHub'
+
   [languages]
     [languages.fr]
       languageName = 'Français'
@@ -25,37 +51,37 @@ theme = 'agnes'
       title = 'Djaka Handball Club'
       contentDir = 'content/fr'
    
-    # Main menu (FR)
-    [[languages.fr.menu.main]]
-      identifier = 'home'
-      name = 'Accueil'
-      url = '/'
-      weight = 1
-    [[languages.fr.menu.main]]
-      identifier = 'about'
-      name = 'À propos'
-      url = '/about/'
-      weight = 2
-    [[languages.fr.menu.main]]
-      identifier = 'players'
-      name = 'Joueurs'
-      url = '/players/'
-      weight = 3
-    [[languages.fr.menu.main]]
-      identifier = 'competitions'
-      name = 'Compétitions'
-      url = '/competitions/'
-      weight = 4
-    [[languages.fr.menu.main]]
-      identifier = 'news'
-      name = 'Actualités'
-      url = '/news/'
-      weight = 5
-    [[languages.fr.menu.main]]
-      identifier = 'gallery'
-      name = 'Galerie'
-      url = '/gallery/'
-      weight = 6
+      # Main menu (FR)
+      [[languages.fr.menu.main]]
+        identifier = 'home'
+        name = 'Accueil'
+        url = '/'
+        weight = 1
+      [[languages.fr.menu.main]]
+        identifier = 'about'
+        name = 'À propos'
+        url = '/about/'
+        weight = 2
+      [[languages.fr.menu.main]]
+        identifier = 'players'
+        name = 'Joueurs'
+        url = '/players/'
+        weight = 3
+      [[languages.fr.menu.main]]
+        identifier = 'competitions'
+        name = 'Compétitions'
+        url = '/competitions/'
+        weight = 4
+      [[languages.fr.menu.main]]
+        identifier = 'news'
+        name = 'Actualités'
+        url = '/news/'
+        weight = 5
+      [[languages.fr.menu.main]]
+        identifier = 'gallery'
+        name = 'Galerie'
+        url = '/gallery/'
+        weight = 6
 
     [languages.en]
       languageName = 'English'
@@ -63,34 +89,39 @@ theme = 'agnes'
       title = 'Djaka Handball Club'
       contentDir = 'content/en'
 
-    # Main menu (EN)
-    [[languages.en.menu.main]]
-      identifier = 'home'
-      name = 'Home'
-      url = '/en/'
-      weight = 1
-    [[languages.en.menu.main]]
-      identifier = 'about'
-      name = 'About'
-      url = '/en/about/'
-      weight = 2
-    [[languages.en.menu.main]]
-      identifier = 'players'
-      name = 'Players'
-      url = '/en/players/'
-      weight = 3
-    [[languages.en.menu.main]]
-      identifier = 'competitions'
-      name = 'Competitions'
-      url = '/en/competitions/'
-      weight = 4
-    [[languages.en.menu.main]]
-      identifier = 'news'
-      name = 'News'
-      url = '/en/news/'
-      weight = 5
-    [[languages.en.menu.main]]
-      identifier = 'gallery'
-      name = 'Gallery'
-      url = '/en/gallery/'
-      weight = 6
+      # Main menu (EN)
+      [[languages.en.menu.main]]
+        identifier = 'home'
+        name = 'Home'
+        url = '/en/'
+        weight = 1
+      [[languages.en.menu.main]]
+        identifier = 'about'
+        name = 'About'
+        url = '/en/about/'
+        weight = 2
+      [[languages.en.menu.main]]
+        identifier = 'players'
+        name = 'Players'
+        url = '/en/players/'
+        weight = 3
+      [[languages.en.menu.main]]
+        identifier = 'competitions'
+        name = 'Competitions'
+        url = '/en/competitions/'
+        weight = 4
+      [[languages.en.menu.main]]
+        identifier = 'news'
+        name = 'News'
+        url = '/en/news/'
+        weight = 5
+      [[languages.en.menu.main]]
+        identifier = 'gallery'
+        name = 'Gallery'
+        url = '/en/gallery/'
+        weight = 6
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true

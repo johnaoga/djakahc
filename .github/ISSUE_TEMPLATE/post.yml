@@ -1,0 +1,51 @@
+name: Post
+description: Publish a blog post to the website (Editorial theme)
+labels: ["type:post"]
+body:
+  - type: dropdown
+    id: lang
+    attributes:
+      label: Language
+      description: Select the language for this post
+      options:
+        - fr
+        - en
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      placeholder: e.g. Our season highlights
+    validations:
+      required: true
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary (short)
+      placeholder: One or two sentences
+  - type: input
+    id: featuredImage
+    attributes:
+      label: Featured image relative path (optional)
+      description: Prefer a bundle-local filename next to index.md (e.g., featured.jpg). Static paths also work (e.g., images/posts/xxx.jpg).
+      placeholder: featured.jpg
+  - type: input
+    id: tags
+    attributes:
+      label: Tags (comma separated)
+      placeholder: e.g. club,update
+  - type: input
+    id: categories
+    attributes:
+      label: Categories (comma separated)
+      placeholder: e.g. announcements
+  - type: textarea
+    id: content
+    attributes:
+      label: Content (Markdown)
+      description: Main content of the post in Markdown
+      render: markdown
+    validations:
+      required: true

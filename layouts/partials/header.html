@@ -1,0 +1,31 @@
+<header id="header">
+  <a href="{{ .Site.BaseURL | relLangURL }}" class="logo">
+    <strong>{{ default .Site.Title .Site.Params.brand }}</strong>
+  </a>
+  <ul class="icons">
+    {{ with .Site.Params.social }}
+      {{ range . }}
+        <li>
+          <a href="{{ .url }}" class="icon brands fa-{{ .icon }}" target="_blank" rel="noopener">
+            <span class="label">{{ .title }}</span>
+          </a>
+        </li>
+      {{ end }}
+    {{ end }}
+  </ul>
+  <ul class="icons">
+    {{ $current := .Site.Language.Lang }}
+    {{ range .Sites }}
+      {{ $lang := .Language.Lang }}
+      {{ if ne $lang $current }}
+        {{ $alt := index (where $.AllTranslations "Lang" $lang) 0 }}
+        <li>
+          <a href="{{ if $alt }}{{ $alt.RelPermalink }}{{ else }}{{ .Home.RelPermalink }}{{ end }}">
+            {{ cond (eq $lang "fr") "🇫🇷" (cond (eq $lang "en") "🇬🇧" "🏳️") }}
+            <span class="label">{{ .Language.LanguageName }}</span>
+          </a>
+        </li>
+      {{ end }}
+    {{ end }}
+  </ul>
+</header>

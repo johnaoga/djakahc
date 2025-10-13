@@ -21,3 +21,19 @@ other = "Contact"
 
 [social_networks]
 other = "Réseaux sociaux"
+
+# Editorial theme keys
+[latest_posts]
+other = "Derniers articles"
+
+[more]
+other = "Plus"
+
+[menu]
+other = "Menu"
+
+[mini_posts]
+other = "Mini articles"
+
+[get_in_touch]
+other = "Contactez-nous"
