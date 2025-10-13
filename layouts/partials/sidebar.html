@@ -1,0 +1,80 @@
+<div id="sidebar">
+  <div class="inner">
+    <section id="search" class="alt">
+      <form method="get" action="{{ .Site.BaseURL | relLangURL }}">
+        <input type="text" name="s" id="query" placeholder="Search" />
+      </form>
+    </section>
+
+    {{ with .Site.Params.logo }}
+    <section style="text-align:center; margin: 0 0 1.5rem 0;">
+      <a href="{{ $.Site.BaseURL | relLangURL }}" style="display:inline-block;">
+        <img src="{{ . | relURL }}" alt="logo" width="128" height="128" style="width:128px; height:128px; object-fit:contain;" />
+      </a>
+    </section>
+    {{ end }}
+
+    <nav id="menu">
+      <header class="major">
+        <h2>{{ i18n "menu" | default "Menu" }}</h2>
+      </header>
+      <ul>
+        {{ $current := . }}
+        {{ range .Site.Menus.main }}
+          <li>
+            {{ $hasChildren := .HasChildren }}
+            {{ if $hasChildren }}
+              <span class="opener">{{ .Name }}</span>
+              <ul>
+                {{ range .Children }}
+                  <li><a href="{{ .URL | relLangURL }}">{{ .Name }}</a></li>
+                {{ end }}
+              </ul>
+            {{ else }}
+              <a href="{{ .URL | relLangURL }}">{{ .Name }}</a>
+            {{ end }}
+          </li>
+        {{ end }}
+      </ul>
+    </nav>
+
+    <section>
+      <header class="major">
+        <h2>{{ i18n "mini_posts" | default "Mini Posts" }}</h2>
+      </header>
+      <div class="mini-posts">
+        {{ $mini := first 3 (where .Site.RegularPages "Section" "posts") }}
+        {{ range $mini }}
+          <article>
+            {{ with .Params.featuredImage }}
+              <a href="{{ $.Permalink }}" class="image"><img src="{{ . | relURL }}" alt="" /></a>
+            {{ end }}
+            <p><a href="{{ .Permalink }}">{{ .Title }}</a></p>
+            <p>{{ with .Summary }}{{ . | plainify | truncate 120 }}{{ end }}</p>
+          </article>
+        {{ end }}
+      </div>
+    </section>
+
+    <section>
+      <header class="major">
+        <h2>{{ i18n "get_in_touch" | default "Get in touch" }}</h2>
+      </header>
+      <ul class="contact">
+        {{ with .Site.Params.contact }}
+          {{ with .address }}<li class="icon solid fa-home">{{ . }}</li>{{ end }}
+          {{ with .phone }}<li class="icon solid fa-phone"><a href="tel:{{ . }}">{{ . }}</a></li>{{ end }}
+          {{ with .email }}<li class="icon solid fa-envelope"><a href="mailto:{{ . }}">{{ . }}</a></li>{{ end }}
+        {{ end }}
+      </ul>
+    </section>
+
+    <footer id="footer">
+      <p class="copyright">
+        {{ with .Site.Params.copyright }}{{ . | safeHTML }}{{ else }}
+          &copy; {{ now.Year }} {{ .Site.Title }}. Design: <a href="https://html5up.net">HTML5 UP</a>.
+        {{ end }}
+      </p>
+    </footer>
+  </div>
+</div>
