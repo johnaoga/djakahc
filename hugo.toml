@@ -6,6 +6,9 @@ defaultContentLanguage = 'fr'
 enableRobotsTXT = true
 theme = 'editorial'
 
+# Generate relative URLs so the site can be served from a subpath (e.g., /djakahc/) on GitHub Pages
+relativeURLs = true
+
 [pagination]
   pagerSize = 10
 

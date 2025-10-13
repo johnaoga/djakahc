@@ -1,3 +1,6 @@
 .hugo_build.lock
 djaka.psd
 logo djaka.png
+public
+layouts_backup
+resources
