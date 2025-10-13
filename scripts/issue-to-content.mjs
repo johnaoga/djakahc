@@ -146,6 +146,15 @@ function downloadImage(urlStr, destPath) {
         });
         return;
       }
+      const ctype = (res.headers['content-type'] || '').toLowerCase();
+      // Only accept image content types
+      if (!ctype.startsWith('image/')) {
+        res.destroy();
+        file.close(() => {
+          fs.unlink(destPath, () => resolve(null));
+        });
+        return;
+      }
       res.pipe(file);
       file.on('finish', () => file.close(() => resolve(destPath)));
     }).on('error', err => {
@@ -274,6 +283,17 @@ async function main() {
     const dest = path.join(itemDir, localFeatured);
     await downloadImage(data.featuredImage, dest);
     data.featuredImage = localFeatured;
+  }
+
+  // Download player photo if it's an external URL and rewrite to local filename
+  if (contentSection === 'players' && data.photo && isHttpUrl(data.photo)) {
+    const { ext } = urlToFileParts(data.photo);
+    const localPhoto = `photo${ext}`;
+    const dest = path.join(itemDir, localPhoto);
+    const saved = await downloadImage(data.photo, dest);
+    if (saved) {
+      data.photo = localPhoto;
+    }
   }
 
   // Rewrite and download external images in content
