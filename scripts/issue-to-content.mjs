@@ -18,25 +18,42 @@ function toSlug(str) {
     .slice(0, 80);
 }
 
-function escapeRegex(s) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+function parseField(markdown, heading) {
+  if (!markdown) return '';
+  const lines = markdown.split(/\r?\n/);
+  const target = heading.toLowerCase();
+  let start = -1;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (line.toLowerCase() === `### ${target}`) {
+      start = i + 1;
+      break;
+    }
+  }
+  if (start === -1) return '';
+  let out = [];
+  for (let i = start; i < lines.length; i++) {
+    const line = lines[i];
+    if (/^###\s+/.test(line.trim())) break;
+    out.push(line);
+  }
+  return out.join('\n').trim();
 }
 
-function parseField(markdown, heading) {
-  const h = escapeRegex(heading);
-  // Allow CRLF/LF, tolerate trailing spaces, and stop at next heading or end
-  const re = new RegExp(`^###\\s+${h}\\s*\r?\n([\\s\\S]*?)(?=\r?\n###\\s|\r?\n?$|$)`, 'mi');
-  const m = markdown.match(re);
-  if (!m) return '';
-  return m[1].trim();
+function normalizeNoResponse(value) {
+  if (!value) return '';
+  const v = String(value).trim();
+  return v === '_No response_' ? '' : v;
 }
 
 function parseCommaList(value) {
+  value = normalizeNoResponse(value);
   if (!value) return [];
   return value
     .split(',')
     .map(s => s.trim())
-    .filter(Boolean);
+    .filter(Boolean)
+    .filter(v => v !== '_No response_');
 }
 
 function todayISO() {
@@ -92,7 +109,7 @@ function stripCodeFences(md) {
   if (!md) return '';
   const trimmed = md.trim();
   // Remove surrounding triple backtick fences if present
-  const fenceRe = /^```[a-zA-Z0-9_-]*\r?\n([\s\S]*?)\r?\n```\s*$/m;
+  const fenceRe = /^```[a-zA-Z0-9_-]*\r?\n([\s\S]*?)\r?\n```\s*$/;
   const m = trimmed.match(fenceRe);
   if (m) return m[1].trim() + '\n';
   return md;
@@ -205,20 +222,20 @@ async function main() {
   if (section === 'news') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
     data.summary = parseField(body, 'Summary (short)');
-    data.cover = parseField(body, 'Cover image relative path (optional)');
+    data.cover = normalizeNoResponse(parseField(body, 'Cover image relative path (optional)'));
     data.tags = parseCommaList(parseField(body, 'Tags (comma separated)'));
     data.categories = parseCommaList(parseField(body, 'Categories (comma separated)'));
     // gallery field label from issue template
     data.gallery = parseCommaList(parseField(body, 'Gallery images (comma separated, optional)'));
     // cover field label may be updated; also try alternate label
-    if (!data.cover) data.cover = parseField(body, 'Cover image filename or static path (optional)');
+    if (!data.cover) data.cover = normalizeNoResponse(parseField(body, 'Cover image filename or static path (optional)'));
     data.content = stripCodeFences(parseField(body, 'Content (Markdown)'));
   } else if (section === 'competition') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
     data.startDate = parseField(body, 'Start date (YYYY-MM-DD)');
     data.endDate = parseField(body, 'End date (YYYY-MM-DD)');
     data.location = parseField(body, 'Location');
-    data.cover = parseField(body, 'Cover image relative path (optional)') || parseField(body, 'Cover image filename or static path (optional)');
+    data.cover = normalizeNoResponse(parseField(body, 'Cover image relative path (optional)')) || normalizeNoResponse(parseField(body, 'Cover image filename or static path (optional)'));
     data.summary = parseField(body, 'Summary (short)');
     data.gallery = parseCommaList(parseField(body, 'Gallery images (comma separated, optional)'));
     data.content = stripCodeFences(parseField(body, 'Description (Markdown)'));
@@ -227,13 +244,13 @@ async function main() {
     data.name = parseField(body, 'Player full name');
     data.gender = parseField(body, 'Gender');
     data.category = parseField(body, 'Category');
-    data.photo = parseField(body, 'Photo relative path (optional)');
+    data.photo = normalizeNoResponse(parseField(body, 'Photo relative path (optional)'));
     data.content = stripCodeFences(parseField(body, 'Bio / Notes (Markdown)'));
   } else if (section === 'post') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
     data.summary = parseField(body, 'Summary (short)');
-    data.featuredImage = parseField(body, 'Featured image relative path (optional)');
-    if (!data.featuredImage) data.featuredImage = parseField(body, 'Cover image relative path (optional)') || parseField(body, 'Cover image filename or static path (optional)');
+    data.featuredImage = normalizeNoResponse(parseField(body, 'Featured image relative path (optional)'));
+    if (!data.featuredImage) data.featuredImage = normalizeNoResponse(parseField(body, 'Cover image relative path (optional)')) || normalizeNoResponse(parseField(body, 'Cover image filename or static path (optional)'));
     data.tags = parseCommaList(parseField(body, 'Tags (comma separated)'));
     data.categories = parseCommaList(parseField(body, 'Categories (comma separated)'));
     data.content = stripCodeFences(parseField(body, 'Content (Markdown)'));
