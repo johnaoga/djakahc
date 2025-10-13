@@ -189,6 +189,12 @@ async function rewriteAndDownloadImages(markdown, itemDir) {
 
 let pendingDownloads = [];
 
+function stripInlineImageMarkdown(md) {
+  if (!md) return md;
+  // Replace image syntax with just the alt text (if any), otherwise remove
+  return md.replace(/!\[([^\]]*)\]\([^)]*\)/g, (m, alt) => alt || '');
+}
+
 async function main() {
   const payloadPath = process.env.GITHUB_EVENT_PATH;
   if (!payloadPath) {
@@ -230,7 +236,7 @@ async function main() {
   let data = {};
   if (section === 'news') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
-    data.summary = parseField(body, 'Summary (short)');
+    data.summary = stripInlineImageMarkdown(parseField(body, 'Summary (short)'));
     data.cover = normalizeNoResponse(parseField(body, 'Cover image relative path (optional)'));
     data.tags = parseCommaList(parseField(body, 'Tags (comma separated)'));
     data.categories = parseCommaList(parseField(body, 'Categories (comma separated)'));
@@ -245,7 +251,7 @@ async function main() {
     data.endDate = parseField(body, 'End date (YYYY-MM-DD)');
     data.location = parseField(body, 'Location');
     data.cover = normalizeNoResponse(parseField(body, 'Cover image relative path (optional)')) || normalizeNoResponse(parseField(body, 'Cover image filename or static path (optional)'));
-    data.summary = parseField(body, 'Summary (short)');
+    data.summary = stripInlineImageMarkdown(parseField(body, 'Summary (short)'));
     data.gallery = parseCommaList(parseField(body, 'Gallery images (comma separated, optional)'));
     data.content = stripCodeFences(parseField(body, 'Description (Markdown)'));
   } else if (section === 'player') {
@@ -257,7 +263,7 @@ async function main() {
     data.content = stripCodeFences(parseField(body, 'Bio / Notes (Markdown)'));
   } else if (section === 'post') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
-    data.summary = parseField(body, 'Summary (short)');
+    data.summary = stripInlineImageMarkdown(parseField(body, 'Summary (short)'));
     data.featuredImage = normalizeNoResponse(parseField(body, 'Featured image relative path (optional)'));
     if (!data.featuredImage) data.featuredImage = normalizeNoResponse(parseField(body, 'Cover image relative path (optional)')) || normalizeNoResponse(parseField(body, 'Cover image filename or static path (optional)'));
     data.tags = parseCommaList(parseField(body, 'Tags (comma separated)'));
@@ -294,6 +300,34 @@ async function main() {
     if (saved) {
       data.photo = localPhoto;
     }
+  }
+
+  // Download cover for news/competitions when provided as external URL
+  if ((contentSection === 'news' || contentSection === 'competitions') && data.cover && isHttpUrl(data.cover)) {
+    const { ext } = urlToFileParts(data.cover);
+    const localCover = `cover${ext}`;
+    const dest = path.join(itemDir, localCover);
+    const saved = await downloadImage(data.cover, dest);
+    if (saved) data.cover = localCover;
+  }
+
+  // Download gallery images for news/competitions when URLs are provided
+  if ((contentSection === 'news' || contentSection === 'competitions') && Array.isArray(data.gallery) && data.gallery.length) {
+    const newGallery = [];
+    let gidx = 1;
+    for (const g of data.gallery) {
+      if (isHttpUrl(g)) {
+        const { ext } = urlToFileParts(g);
+        const local = `gallery-${gidx}${ext}`;
+        gidx++;
+        const dest = path.join(itemDir, local);
+        const saved = await downloadImage(g, dest);
+        newGallery.push(saved ? local : g);
+      } else {
+        newGallery.push(g);
+      }
+    }
+    data.gallery = newGallery;
   }
 
   // Rewrite and download external images in content
