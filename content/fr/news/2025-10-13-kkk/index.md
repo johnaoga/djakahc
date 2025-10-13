@@ -1,6 +1,6 @@
 ---
 title: "kkk"
-date: 2025-10-13T23:40:47.577Z
+date: 2025-10-13T23:42:35.725Z
 draft: false
 highlight: false
 summary: "jjjj"
@@ -10,5 +10,5 @@ gallery: ["gallery-1.jpg", "gallery-2.jpg"]
 
 {{< lead >}}kkk{{< /lead >}}
 
-La photo été magnifique ![photo1](photo-1.jpg), ![photo2](photo-2.jpg)
+La photo été magnifique ![photo1](gallery-1.jpg), ![photo2](gallery-2.jpg)
 
