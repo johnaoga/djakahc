@@ -1,0 +1,35 @@
+name: Gallery Item
+description: Publish a gallery image with a short caption
+labels: ["type:gallery"]
+body:
+  - type: dropdown
+    id: lang
+    attributes:
+      label: Language
+      description: Select the language for this gallery item
+      options:
+        - fr
+        - en
+      default: 0
+    validations:
+      required: true
+  - type: input
+    id: title
+    attributes:
+      label: Title
+      placeholder: e.g. Training session
+    validations:
+      required: true
+  - type: input
+    id: image
+    attributes:
+      label: Image
+      description: Filename next to index.md (e.g., image.jpg), a static path (e.g., images/gallery/xxx.jpg), or a GitHub attachment URL
+      placeholder: image.jpg
+    validations:
+      required: true
+  - type: textarea
+    id: caption
+    attributes:
+      label: Caption
+      placeholder: A short caption for the image

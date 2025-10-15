@@ -29,7 +29,7 @@ body:
     id: featuredImage
     attributes:
       label: Featured image relative path (optional)
-      description: Prefer a bundle-local filename next to index.md (e.g., featured.jpg). Static paths also work (e.g., images/posts/xxx.jpg).
+      description: Prefer a bundle-local filename next to index.md (e.g., featured.jpg). Static paths also work (e.g., images/posts/xxx.jpg). You may also paste a GitHub attachment URL.
       placeholder: featured.jpg
   - type: input
     id: tags

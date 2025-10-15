@@ -101,6 +101,11 @@ function buildFrontMatter(section, data) {
     if (data.photo) lines.push(`photo: "${data.photo}"`);
   }
 
+  if (section === 'gallery') {
+    if (data.caption) lines.push(`caption: "${data.caption.replace(/"/g, '\\"')}"`);
+    if (data.image) lines.push(`image: "${data.image}"`);
+  }
+
   lines.push('---');
   return lines.join('\n');
 }
@@ -221,6 +226,7 @@ async function main() {
     competition: 'competitions',
     player: 'players',
     post: 'posts',
+    gallery: 'gallery',
   };
   const contentSection = sectionMap[section];
   if (!contentSection) {
@@ -259,7 +265,7 @@ async function main() {
     data.name = parseField(body, 'Player full name');
     data.gender = parseField(body, 'Gender');
     data.category = parseField(body, 'Category');
-    data.photo = normalizeNoResponse(parseField(body, 'Photo relative path (optional)'));
+    data.photo = normalizeNoResponse(parseField(body, 'Photo relative path (optional)')) || normalizeNoResponse(parseField(body, 'Photo'));
     data.content = stripCodeFences(parseField(body, 'Bio / Notes (Markdown)'));
   } else if (section === 'post') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
@@ -269,6 +275,11 @@ async function main() {
     data.tags = parseCommaList(parseField(body, 'Tags (comma separated)'));
     data.categories = parseCommaList(parseField(body, 'Categories (comma separated)'));
     data.content = stripCodeFences(parseField(body, 'Content (Markdown)'));
+  } else if (section === 'gallery') {
+    data.title = parseField(body, 'Title') || issue.title || 'Untitled';
+    data.caption = stripInlineImageMarkdown(parseField(body, 'Caption'));
+    data.image = normalizeNoResponse(parseField(body, 'Image'));
+    data.content = '';
   }
 
   const datePrefix = todayISO();
@@ -311,6 +322,15 @@ async function main() {
     if (saved) data.cover = localCover;
   }
 
+  // Download gallery single image when provided as external URL
+  if (contentSection === 'gallery' && data.image && isHttpUrl(data.image)) {
+    const { ext } = urlToFileParts(data.image);
+    const localImg = `image${ext}`;
+    const dest = path.join(itemDir, localImg);
+    const saved = await downloadImage(data.image, dest);
+    if (saved) data.image = localImg;
+  }
+
   // Download gallery images for news/competitions when URLs are provided
   if ((contentSection === 'news' || contentSection === 'competitions') && Array.isArray(data.gallery) && data.gallery.length) {
     const newGallery = [];
@@ -337,7 +357,8 @@ async function main() {
 
   const fm = buildFrontMatter(contentSection, data);
   const lead = contentSection === 'news' ? `\n\n{{< lead >}}${data.title}{{< /lead >}}\n\n` : '\n\n';
-  const content = `${fm}${lead}${bodyContent}\n`;
+  const galleryBody = contentSection === 'gallery' && data.caption ? `${data.caption}\n` : '';
+  const content = `${fm}${lead}${galleryBody || bodyContent}\n`;
 
   fs.writeFileSync(filePath, content, 'utf8');
   console.log('Generated:', filePath);
