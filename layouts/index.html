@@ -1,0 +1,76 @@
+{{ define "main" }}
+  {{ $home := .Params.home }}
+  <section id="banner">
+    <div class="content">
+      <header>
+        <h1>{{ with $home.title }}{{ . }}{{ else }}{{ .Site.Title }}{{ end }}</h1>
+        {{ with $home.subtitle }}<p>{{ . }}</p>{{ end }}
+      </header>
+      {{ with $home.blurb }}<p>{{ . | safeHTML }}</p>{{ end }}
+      {{ with $home.cta }}
+        <ul class="actions">
+          <li><a href="{{ .link | relURL }}" class="button primary">{{ .text }}</a></li>
+        </ul>
+      {{ end }}
+    </div>
+    {{ with $home.image }}
+      <span class="image object">
+        <img src="{{ . | relURL }}" alt="" />
+      </span>
+    {{ end }}
+  </section>
+
+  <section>
+    <header class="major">
+      <h2>{{ i18n "latest_news" | default "Latest News" }}</h2>
+    </header>
+    <div class="posts">
+      {{ $items := first 3 (where .Site.RegularPages "Section" "news") }}
+      {{ range $items }}
+        <article>
+          {{ $img := .Params.cover }}
+          {{ with $img }}
+            {{ with $.Resources.GetMatch . }}
+              {{ $proc := .Fill "720x405 center q75" }}
+              <a href="{{ $.Permalink }}" class="image"><img src="{{ $proc.RelPermalink }}" width="720" height="405" alt="" /></a>
+            {{ else }}
+              <a href="{{ $.Permalink }}" class="image"><img src="{{ $img | relURL }}" alt="" /></a>
+            {{ end }}
+          {{ end }}
+          <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+          <p>{{ with .Summary }}{{ . | plainify | truncate 180 }}{{ end }}</p>
+          <ul class="actions">
+            <li><a href="{{ .Permalink }}" class="button">{{ i18n "more" | default "More" }}</a></li>
+          </ul>
+        </article>
+      {{ end }}
+    </div>
+  </section>
+
+  <section>
+    <header class="major">
+      <h2>{{ i18n "latest_posts" | default "Latest Posts" }}</h2>
+    </header>
+    <div class="posts">
+      {{ $posts := first 6 (where .Site.RegularPages "Section" "posts") }}
+      {{ range $posts }}
+        <article>
+          {{ $img := .Params.featuredImage }}
+          {{ with $img }}
+            {{ with $.Resources.GetMatch . }}
+              {{ $proc := .Fill "640x360 center q75" }}
+              <a href="{{ $.Permalink }}" class="image"><img src="{{ $proc.RelPermalink }}" width="640" height="360" alt="" /></a>
+            {{ else }}
+              <a href="{{ $.Permalink }}" class="image"><img src="{{ $img | relURL }}" alt="" /></a>
+            {{ end }}
+          {{ end }}
+          <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+          <p>{{ with .Summary }}{{ . | plainify | truncate 180 }}{{ end }}</p>
+          <ul class="actions">
+            <li><a href="{{ .Permalink }}" class="button">{{ i18n "more" | default "More" }}</a></li>
+          </ul>
+        </article>
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

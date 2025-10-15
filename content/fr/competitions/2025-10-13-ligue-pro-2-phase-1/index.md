@@ -14,5 +14,5 @@ cover: "https://photos.app.goo.gl/cDFQhkQ1cdaNYes79"
 gallery: ["gallery-1.jpg", "gallery-2.jpg", "gallery-3.jpg"]
 ---
 
-Nous fier de nos joueurs qui ont tout donné. Claude dans tous ces états ![image](image-1.jpg). Charles n'était pas du reste ![image](image-2.jpg)
+Nous fier de nos joueurs qui ont tout donné. Claude dans tous ces états ![image](gallery-1.jpg). Charles n'était pas du reste ![image](gallery-2.jpg)
 

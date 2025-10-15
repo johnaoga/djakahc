@@ -1,0 +1,18 @@
+{{ define "main" }}
+  <section>
+    <header class="main">
+      <h1>{{ .Title }}</h1>
+    </header>
+    {{ $img := .Params.featuredImage }}
+    {{ with $img }}
+      {{ with $.Resources.GetMatch . }}
+        {{ $proc := .Fill "1200x675 center q75" }}
+        <span class="image main"><img src="{{ $proc.RelPermalink }}" width="1200" height="675" alt="" /></span>
+      {{ else }}
+        <span class="image main"><img src="{{ $img | relURL }}" alt="" /></span>
+      {{ end }}
+    {{ end }}
+    {{ with .Summary }}<p style="font-style:italic; font-size:1.1rem; color:#555;">{{ . | safeHTML }}</p>{{ end }}
+    <div class="content">{{ .Content }}</div>
+  </section>
+{{ end }}

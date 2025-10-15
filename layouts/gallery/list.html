@@ -1,0 +1,24 @@
+{{ define "main" }}
+  <section>
+    <header class="main">
+      <h1>{{ .Title }}</h1>
+    </header>
+    <div class="gallery-grid" style="display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem;">
+      {{ range .Pages }}
+        {{ $img := .Params.image | default .Params.photo | default .Params.cover }}
+        {{ $caption := .Params.caption | default .Title }}
+        <figure style="margin:0;">
+          {{ with $img }}
+            {{ with $.Resources.GetMatch . }}
+              {{ $proc := .Fill "480x320 center q75" }}
+              <img src="{{ $proc.RelPermalink }}" width="480" height="320" alt="{{ $caption }}" style="cursor:zoom-in; transition:transform .2s;" onclick="this.style.transform = this.style.transform ? '' : 'scale(2)'; this.style.zIndex=1000;" />
+            {{ else }}
+              <img src="{{ $img | relURL }}" alt="{{ $caption }}" style="cursor:zoom-in; transition:transform .2s;" onclick="this.style.transform = this.style.transform ? '' : 'scale(2)'; this.style.zIndex=1000;" />
+            {{ end }}
+          {{ end }}
+          <figcaption style="font-size:.9rem; color:#666; margin-top:.25rem;">{{ $caption }}</figcaption>
+        </figure>
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

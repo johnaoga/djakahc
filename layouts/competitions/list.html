@@ -1,0 +1,27 @@
+{{ define "main" }}
+  <section>
+    <header class="main">
+      <h1>{{ .Title }}</h1>
+    </header>
+    {{ $all := where .RegularPages "Section" "competitions" }}
+    <div class="posts">
+      {{ range $all }}
+        <article>
+          {{ $img := .Params.cover }}
+          {{ with $img }}
+            {{ with $.Resources.GetMatch . }}
+              {{ $proc := .Fill "720x405 center q75" }}
+              <a href="{{ $.Permalink }}" class="image"><img src="{{ $proc.RelPermalink }}" width="720" height="405" alt="" /></a>
+            {{ else }}
+              <a href="{{ $.Permalink }}" class="image"><img src="{{ $img | relURL }}" alt="" /></a>
+            {{ end }}
+          {{ end }}
+          <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+          <p>{{ with .Params.startDate }}{{ . }}{{ end }}{{ with .Params.endDate }} – {{ . }}{{ end }}{{ with .Params.location }} • {{ . }}{{ end }}</p>
+          <p>{{ with .Summary }}{{ . | plainify | truncate 160 }}{{ end }}</p>
+          <ul class="actions"><li><a href="{{ .Permalink }}" class="button">{{ i18n "more" | default "More" }}</a></li></ul>
+        </article>
+      {{ end }}
+    </div>
+  </section>
+{{ end }}

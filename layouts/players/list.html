@@ -1,0 +1,52 @@
+{{ define "main" }}
+  <section>
+    <header class="main">
+      <h1>{{ .Title }}</h1>
+    </header>
+    {{ $players := where .RegularPages "Section" "players" }}
+    {{ $men := where $players ".Params.gender" "men" }}
+    {{ $women := where $players ".Params.gender" "women" }}
+    {{ if gt (len $men) 0 }}
+      <header class="major"><h2>{{ i18n "men" | default "Men" }}</h2></header>
+      <div class="players-grid" style="display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1.5rem;">
+        {{ range $men }}
+          {{ $page := . }}
+          <article>
+            {{ $img := .Params.photo }}
+            {{ with $img }}
+              {{ with $.Resources.GetMatch . }}
+                {{ $proc := .Fill "320x320 center q75" }}
+                <a href="{{ $page.Permalink }}" class="image"><img src="{{ $proc.RelPermalink }}" width="320" height="320" alt="" /></a>
+              {{ else }}
+                <a href="{{ $page.Permalink }}" class="image"><img src="{{ $img | relURL }}" alt="" /></a>
+              {{ end }}
+            {{ end }}
+            <h3 style="margin:0.5rem 0 0.25rem 0;"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+            <p style="margin:0; color:#666;">{{ with .Params.category }}{{ . }}{{ end }}</p>
+          </article>
+        {{ end }}
+      </div>
+    {{ end }}
+    {{ if gt (len $women) 0 }}
+      <header class="major"><h2>{{ i18n "women" | default "Women" }}</h2></header>
+      <div class="players-grid" style="display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:1.5rem;">
+        {{ range $women }}
+          {{ $page := . }}
+          <article>
+            {{ $img := .Params.photo }}
+            {{ with $img }}
+              {{ with $.Resources.GetMatch . }}
+                {{ $proc := .Fill "320x320 center q75" }}
+                <a href="{{ $page.Permalink }}" class="image"><img src="{{ $proc.RelPermalink }}" width="320" height="320" alt="" /></a>
+              {{ else }}
+                <a href="{{ $page.Permalink }}" class="image"><img src="{{ $img | relURL }}" alt="" /></a>
+              {{ end }}
+            {{ end }}
+            <h3 style="margin:0.5rem 0 0.25rem 0;"><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+            <p style="margin:0; color:#666;">{{ with .Params.category }}{{ . }}{{ end }}</p>
+          </article>
+        {{ end }}
+      </div>
+    {{ end }}
+  </section>
+{{ end }}

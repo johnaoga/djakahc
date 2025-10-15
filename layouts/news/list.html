@@ -1,0 +1,39 @@
+{{ define "main" }}
+  <section>
+    <header class="main">
+      <h1>{{ .Title }}</h1>
+    </header>
+    {{ $all := where .RegularPages "Section" "news" }}
+    {{ $latest := first 9 $all }}
+    {{ $older := after 9 $all }}
+    <div class="posts">
+      {{ range $latest }}
+        <article>
+          {{ $img := .Params.cover }}
+          {{ with $img }}
+            {{ with $.Resources.GetMatch . }}
+              {{ $proc := .Fill "720x405 center q75" }}
+              <a href="{{ $.Permalink }}" class="image"><img src="{{ $proc.RelPermalink }}" width="720" height="405" alt="" /></a>
+            {{ else }}
+              <a href="{{ $.Permalink }}" class="image"><img src="{{ $img | relURL }}" alt="" /></a>
+            {{ end }}
+          {{ end }}
+          <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+          <p>{{ with .Summary }}{{ . | plainify | truncate 180 }}{{ end }}</p>
+          <ul class="actions"><li><a href="{{ .Permalink }}" class="button">{{ i18n "more" | default "More" }}</a></li></ul>
+        </article>
+      {{ end }}
+    </div>
+    {{ if gt (len $older) 0 }}
+      <header class="major"><h2>{{ i18n "archives" | default "Archives" }}</h2></header>
+      <div class="posts">
+        {{ range $older }}
+          <article>
+            <h3><a href="{{ .Permalink }}">{{ .Title }}</a></h3>
+            <p>{{ with .Summary }}{{ . | plainify | truncate 140 }}{{ end }}</p>
+          </article>
+        {{ end }}
+      </div>
+    {{ end }}
+  </section>
+{{ end }}

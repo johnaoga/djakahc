@@ -46,8 +46,14 @@
         {{ $mini := first 3 (where .Site.RegularPages "Section" "posts") }}
         {{ range $mini }}
           <article>
-            {{ with .Params.featuredImage }}
-              <a href="{{ $.Permalink }}" class="image"><img src="{{ . | relURL }}" alt="" /></a>
+            {{ $imgParam := .Params.featuredImage }}
+            {{ with $imgParam }}
+              {{ with $.Resources.GetMatch . }}
+                {{ $proc := .Fill "320x180 center q75" }}
+                <a href="{{ $.Permalink }}" class="image"><img src="{{ $proc.RelPermalink }}" width="320" height="180" alt="" /></a>
+              {{ else }}
+                <a href="{{ $.Permalink }}" class="image"><img src="{{ $imgParam | relURL }}" alt="" /></a>
+              {{ end }}
             {{ end }}
             <p><a href="{{ .Permalink }}">{{ .Title }}</a></p>
             <p>{{ with .Summary }}{{ . | plainify | truncate 120 }}{{ end }}</p>

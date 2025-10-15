@@ -1,0 +1,3 @@
+{{- $class := .Get "class" | default "lead" -}}
+{{- $tag := .Get "tag" | default "p" -}}
+<{{$tag}} class="{{$class}}">{{- .Inner | markdownify -}}</{{$tag}}>
