@@ -44,8 +44,8 @@ body:
     id: gallery
     attributes:
       label: Gallery images (comma separated, optional)
-      description: Prefer bundle-local filenames next to index.md (e.g., photo-1.jpg, photo-2.jpg)
-      placeholder: photo-1.jpg, photo-2.jpg
+      description: Prefer bundle-local filenames next to index.md (e.g., gallery-1.jpg, gallery-2.jpg)
+      placeholder: gallery-1.jpg, gallery-2.jpg
   - type: textarea
     id: content
     attributes:

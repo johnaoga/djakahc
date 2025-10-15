@@ -30,8 +30,10 @@ body:
   - type: input
     id: photo
     attributes:
-      label: Photo relative path (optional)
-      placeholder: images/players/john-doe.jpg
+      label: Photo
+      placeholder: photo.jpg
+    validations:
+      required: true
   - type: textarea
     id: notes
     attributes:
