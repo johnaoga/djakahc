@@ -6,8 +6,8 @@ defaultContentLanguage = 'fr'
 enableRobotsTXT = true
 theme = 'editorial'
 
-# Generate relative URLs so the site can be served from a subpath (e.g., /djakahc/) on GitHub Pages
-relativeURLs = true
+# Site is served at the root of djakahc.org — no subpath, so absolute paths are used.
+# relativeURLs is intentionally disabled to avoid broken ../../ style paths.
 
 [pagination]
   pagerSize = 10
