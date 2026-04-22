@@ -1,9 +1,10 @@
 ---
 title: "DJAKA HC domine la Mise en Jambe de l'Atlantique"
-date: 2026-04-22T10:11:22.002Z
+
+date: 2026-04-22T12:09:45.254Z
 draft: false
 highlight: false
-summary: "**Ouidah, Bénin** — Le week-end dernier (18 avril 2026), Ouidah a vibré aux couleurs du handball et le club DJAKA HC a marqué de son empreinte *Atlantique en Jambe*, une compétition organisée par la Ligue Départementale Atlantique de Handball. Une belle performance qui confirme que ça bouge aussi au handball dans le département.
+summary: "**Ouidah, Bénin** — Le week-end dernier (18 avril 2026), Ouidah a vibré aux couleurs du Handball et le club DJAKA HC a marqué de son empreinte *Atlantique en Jambe*, une compétition organisée par la Ligue Départementale Atlantique de Handball. Une belle performance qui confirme que ça bouge aussi au handball dans le département.
 
 Merci à la Fédération, à Ligue Atlantique, au corps arbitral et tous les acteurs du handball béninois!"
 cover: "cover.jpg"
