@@ -1,6 +1,6 @@
 ---
 title: "Affiliation définitive à la Fédération"
-date: 2026-04-26T09:04:43.714Z
+date: 2026-04-26T09:15:28.442Z
 draft: false
 highlight: false
 ---
