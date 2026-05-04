@@ -3,22 +3,108 @@
     <header class="main">
       <h1>{{ .Title }}</h1>
     </header>
-    <div class="gallery-grid" style="display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:1rem;">
+
+    {{/* ── Collect all tags across gallery pages ── */}}
+    {{ $allTags := slice }}
+    {{ range .Pages }}
+      {{ range .Params.tags }}
+        {{ $allTags = $allTags | append . }}
+      {{ end }}
+    {{ end }}
+    {{ $allTags = $allTags | uniq }}
+
+    {{/* ── Tag filter pills ── */}}
+    {{ if $allTags }}
+    <div class="gallery-tags" style="margin-bottom:1.5rem; display:flex; flex-wrap:wrap; gap:.5rem;">
+      <button class="gallery-tag-btn active" data-tag="all" style="padding:.25rem .75rem; border:1px solid #ccc; border-radius:999px; background:#333; color:#fff; cursor:pointer; font-size:.85rem;">{{ i18n "all" | default "All" }}</button>
+      {{ range $allTags }}
+      <button class="gallery-tag-btn" data-tag="{{ . | urlize }}" style="padding:.25rem .75rem; border:1px solid #ccc; border-radius:999px; background:#f5f5f5; color:#333; cursor:pointer; font-size:.85rem;">{{ . }}</button>
+      {{ end }}
+    </div>
+    {{ end }}
+
+    {{/* ── Gallery grid ── */}}
+    <div class="gallery-grid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:1rem;">
       {{ range .Pages }}
         {{ $img := .Params.image | default .Params.photo | default .Params.cover }}
         {{ $caption := .Params.caption | default .Title }}
-        <figure style="margin:0;">
+        {{ $tagClasses := "" }}
+        {{ range .Params.tags }}{{ $tagClasses = printf "%s %s" $tagClasses (. | urlize) }}{{ end }}
+        <figure class="gallery-item{{ $tagClasses }}" style="margin:0; position:relative;">
           {{ with $img }}
+            {{ $imgSrc := "" }}
             {{ with $.Resources.GetMatch . }}
               {{ $proc := .Fill "480x320 center q75" }}
-              <img src="{{ $proc.RelPermalink }}" width="480" height="320" alt="{{ $caption }}" style="cursor:zoom-in; transition:transform .2s;" onclick="this.style.transform = this.style.transform ? '' : 'scale(2)'; this.style.zIndex=1000;" />
+              {{ $imgSrc = $proc.RelPermalink }}
             {{ else }}
-              <img src="{{ $img | relURL }}" alt="{{ $caption }}" style="cursor:zoom-in; transition:transform .2s;" onclick="this.style.transform = this.style.transform ? '' : 'scale(2)'; this.style.zIndex=1000;" />
+              {{ $imgSrc = (. | relURL) }}
+            {{ end }}
+            {{ with $imgSrc }}
+            <img src="{{ . }}"
+                 alt="{{ $caption }}"
+                 loading="lazy"
+                 style="width:100%; height:220px; object-fit:cover; border-radius:6px; cursor:zoom-in;"
+                 onclick="openLightbox(this.src, this.alt)" />
             {{ end }}
           {{ end }}
-          <figcaption style="font-size:.9rem; color:#666; margin-top:.25rem;">{{ $caption }}</figcaption>
+          <figcaption style="font-size:.85rem; color:#666; margin-top:.35rem;">
+            {{ $caption }}
+            {{ with .Params.source_article }}
+              <span style="display:block; font-size:.75rem; color:#999; margin-top:.15rem;">📎 {{ . }}</span>
+            {{ end }}
+          </figcaption>
+          {{ with .Params.tags }}
+          <div style="margin-top:.25rem; display:flex; flex-wrap:wrap; gap:.25rem;">
+            {{ range . }}
+            <span style="font-size:.7rem; background:#eef; color:#336; padding:.1rem .4rem; border-radius:4px;">{{ . }}</span>
+            {{ end }}
+          </div>
+          {{ end }}
         </figure>
       {{ end }}
     </div>
   </section>
+
+  {{/* ── Lightbox overlay ── */}}
+  <div id="gallery-lightbox" onclick="closeLightbox()" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,.85); justify-content:center; align-items:center; cursor:zoom-out;">
+    <img id="gallery-lightbox-img" src="" alt="" style="max-width:92vw; max-height:92vh; border-radius:8px; box-shadow:0 0 40px rgba(0,0,0,.6);" />
+    <p id="gallery-lightbox-caption" style="position:absolute; bottom:1.5rem; left:50%; transform:translateX(-50%); color:#fff; font-size:.95rem; text-align:center; max-width:80vw;"></p>
+  </div>
+
+  <script>
+    /* Lightbox */
+    function openLightbox(src, alt) {
+      const lb = document.getElementById('gallery-lightbox');
+      document.getElementById('gallery-lightbox-img').src = src;
+      document.getElementById('gallery-lightbox-img').alt = alt;
+      document.getElementById('gallery-lightbox-caption').textContent = alt;
+      lb.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+    function closeLightbox() {
+      document.getElementById('gallery-lightbox').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+    document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeLightbox(); });
+
+    /* Tag filtering */
+    document.querySelectorAll('.gallery-tag-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.gallery-tag-btn').forEach(function(b) {
+          b.classList.remove('active');
+          b.style.background = '#f5f5f5'; b.style.color = '#333';
+        });
+        btn.classList.add('active');
+        btn.style.background = '#333'; btn.style.color = '#fff';
+        var tag = btn.dataset.tag;
+        document.querySelectorAll('.gallery-item').forEach(function(item) {
+          if (tag === 'all' || item.classList.contains(tag)) {
+            item.style.display = '';
+          } else {
+            item.style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
 {{ end }}

@@ -113,6 +113,8 @@ function buildFrontMatter(section, data) {
   if (section === 'gallery') {
     if (data.caption) lines.push(`caption: "${data.caption.replace(/"/g, '\\"')}"`);
     if (data.image) lines.push(`image: "${data.image}"`);
+    if (data.tags && data.tags.length) lines.push(`tags: [${data.tags.map(t => `\"${t}\"`).join(', ')}]`);
+    if (data.sourceArticle) lines.push(`source_article: "${data.sourceArticle.replace(/"/g, '\\"')}"`);
   }
 
   lines.push('---');
@@ -297,6 +299,8 @@ async function main() {
     data.date = userDate || todayISO();
     data.caption = stripInlineImageMarkdown(parseField(body, 'Caption'));
     data.image = normalizeNoResponse(parseField(body, 'Image'));
+    data.tags = parseCommaList(parseField(body, 'Tags (comma separated)'));
+    data.sourceArticle = normalizeNoResponse(parseField(body, 'Source Article'));
     data.content = '';
   }
 
