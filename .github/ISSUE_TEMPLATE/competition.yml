@@ -17,6 +17,12 @@ body:
     validations:
       required: true
   - type: input
+    id: date
+    attributes:
+      label: Date (YYYY-MM-DD)
+      description: Publication/ordering date. Defaults to Start date if left empty.
+      placeholder: "2025-06-15"
+  - type: input
     id: startDate
     attributes:
       label: Start date (YYYY-MM-DD)

@@ -20,6 +20,12 @@ body:
       placeholder: e.g. Match result vs XYZ
     validations:
       required: true
+  - type: input
+    id: date
+    attributes:
+      label: Date (YYYY-MM-DD)
+      description: The date this news event occurred. Used for ordering. Defaults to today if left empty.
+      placeholder: "2025-06-15"
   - type: textarea
     id: summary
     attributes:

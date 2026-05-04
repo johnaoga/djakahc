@@ -62,6 +62,14 @@ function todayISO() {
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 }
 
+function parseDate(value) {
+  value = normalizeNoResponse(value);
+  if (!value) return '';
+  // Accept YYYY-MM-DD format
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value;
+  return '';
+}
+
 function buildFrontMatter(section, data) {
   const lines = ['---'];
   lines.push(`title: "${data.title.replace(/\\"/g, '\\\\"')}"`);
@@ -241,8 +249,13 @@ async function main() {
   const lang = parseField(body, 'Language') || 'fr';
 
   let data = { issue_number: issue.number };
+
+  // Parse the user-supplied date for all content types
+  const userDate = parseDate(parseField(body, 'Date (YYYY-MM-DD)'));
+
   if (section === 'news') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
+    data.date = userDate || todayISO();
     data.summary = stripInlineImageMarkdown(parseField(body, 'Summary (short)'));
     data.cover = normalizeNoResponse(parseField(body, 'Cover image relative path (optional)'));
     data.tags = parseCommaList(parseField(body, 'Tags (comma separated)'));
@@ -255,6 +268,7 @@ async function main() {
   } else if (section === 'competition') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
     data.startDate = parseField(body, 'Start date (YYYY-MM-DD)');
+    data.date = userDate || data.startDate || todayISO();
     data.endDate = parseField(body, 'End date (YYYY-MM-DD)');
     data.location = parseField(body, 'Location');
     data.cover = normalizeNoResponse(parseField(body, 'Cover image relative path (optional)')) || normalizeNoResponse(parseField(body, 'Cover image filename or static path (optional)'));
@@ -263,6 +277,7 @@ async function main() {
     data.content = stripCodeFences(parseField(body, 'Description (Markdown)'));
   } else if (section === 'player') {
     data.title = parseField(body, 'Player full name') || issue.title || 'Player';
+    data.date = userDate || todayISO();
     data.name = parseField(body, 'Player full name');
     data.gender = parseField(body, 'Gender');
     data.category = parseField(body, 'Category');
@@ -270,6 +285,7 @@ async function main() {
     data.content = stripCodeFences(parseField(body, 'Bio / Notes (Markdown)'));
   } else if (section === 'post') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
+    data.date = userDate || todayISO();
     data.summary = stripInlineImageMarkdown(parseField(body, 'Summary (short)'));
     data.featuredImage = normalizeNoResponse(parseField(body, 'Featured image relative path (optional)'));
     if (!data.featuredImage) data.featuredImage = normalizeNoResponse(parseField(body, 'Cover image relative path (optional)')) || normalizeNoResponse(parseField(body, 'Cover image filename or static path (optional)'));
@@ -278,12 +294,13 @@ async function main() {
     data.content = stripCodeFences(parseField(body, 'Content (Markdown)'));
   } else if (section === 'gallery') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
+    data.date = userDate || todayISO();
     data.caption = stripInlineImageMarkdown(parseField(body, 'Caption'));
     data.image = normalizeNoResponse(parseField(body, 'Image'));
     data.content = '';
   }
 
-  const datePrefix = todayISO();
+  const datePrefix = data.date || todayISO();
   const slugSource = data.title || data.name || issue.title || 'item';
   const slug = `${datePrefix}-${toSlug(slugSource)}`;
 
