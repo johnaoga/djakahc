@@ -67,6 +67,7 @@ function buildFrontMatter(section, data) {
   lines.push(`title: "${data.title.replace(/\\"/g, '\\\\"')}"`);
   lines.push(`date: ${data.date || new Date().toISOString()}`);
   lines.push(`draft: false`);
+  if (data.issue_number) lines.push(`issue_number: ${data.issue_number}`);
 
   if (section === 'news') {
     lines.push(`highlight: ${data.highlight ? 'true' : 'false'}`);
@@ -239,7 +240,7 @@ async function main() {
   // Parse common fields rendered by GitHub issue forms
   const lang = parseField(body, 'Language') || 'fr';
 
-  let data = {};
+  let data = { issue_number: issue.number };
   if (section === 'news') {
     data.title = parseField(body, 'Title') || issue.title || 'Untitled';
     data.summary = stripInlineImageMarkdown(parseField(body, 'Summary (short)'));

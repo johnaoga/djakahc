@@ -2,7 +2,7 @@ name: Publish from Issues
 
 on:
   issues:
-    types: [opened, edited, labeled, reopened]
+    types: [opened, edited, labeled, reopened, deleted]
 
 permissions:
   contents: write
@@ -11,6 +11,7 @@ permissions:
 
 jobs:
   generate:
+    if: github.event.action != 'deleted'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -212,3 +213,51 @@ jobs:
               issue_number: created.data.number,
               body: `🌐 This is the **${otherLang.toUpperCase()}** companion of #${issue.number}`,
             });
+
+  archive:
+    if: github.event.action == 'deleted'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+          ref: main
+
+      - name: Archive content for deleted issue
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -e
+          echo "Looking for content files with issue_number: ${ISSUE_NUMBER}"
+          FOUND=0
+          # Search all index.md files for matching issue_number in front matter
+          for f in $(grep -rl "^issue_number: ${ISSUE_NUMBER}$" content/ || true); do
+            echo "Archiving: $f"
+            # Set draft: true (replace existing draft: false)
+            sed -i 's/^draft: false$/draft: true/' "$f"
+            # Add archived fields after draft line if not already present
+            if ! grep -q '^archived:' "$f"; then
+              sed -i "/^draft: true$/a archived: true\narchived_date: $(date -u +%Y-%m-%dT%H:%M:%SZ)" "$f"
+            fi
+            FOUND=1
+          done
+          if [ "$FOUND" = "0" ]; then
+            echo "No content found for issue #${ISSUE_NUMBER}, nothing to archive."
+            exit 0
+          fi
+
+      - name: Commit and push archive changes
+        env:
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -e
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add content/**
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "chore(content): archive content from deleted issue #${ISSUE_NUMBER}"
+          git push origin main
