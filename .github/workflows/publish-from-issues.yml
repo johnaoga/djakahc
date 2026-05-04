@@ -70,13 +70,20 @@ jobs:
       - name: Commit and push changes to feature branch
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+          EVENT_ACTION: ${{ github.event.action }}
+          RUN_NUMBER: ${{ github.run_number }}
         run: |
           set -e
-          BRANCH="content/issue-${ISSUE_NUMBER}"
+          if [ "$EVENT_ACTION" = "edited" ]; then
+            BRANCH="content/issue-${ISSUE_NUMBER}-edit-${RUN_NUMBER}"
+          else
+            BRANCH="content/issue-${ISSUE_NUMBER}"
+          fi
+          echo "BRANCH=$BRANCH" >> "$GITHUB_ENV"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin
-          if git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
+          if [ "$EVENT_ACTION" != "edited" ] && git ls-remote --exit-code --heads origin "$BRANCH" >/dev/null 2>&1; then
             echo "Remote branch exists; checking out origin/$BRANCH"
             git checkout -B "$BRANCH" "origin/$BRANCH"
           else
@@ -97,32 +104,38 @@ jobs:
         uses: actions/github-script@v7
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+          EVENT_ACTION: ${{ github.event.action }}
+          BRANCH: ${{ env.BRANCH }}
         with:
           script: |
             const issue_number = parseInt(process.env.ISSUE_NUMBER, 10);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const branch = `content/issue-${issue_number}`;
+            const branch = process.env.BRANCH || `content/issue-${issue_number}`;
+            const isEdit = process.env.EVENT_ACTION === 'edited';
             try {
-              // Try to find an open PR from this branch
-              const prs = await github.rest.pulls.list({ owner, repo, state: 'open', head: `${owner}:${branch}` });
-              if (prs.data.length > 0) {
-                const pr = prs.data[0];
-                core.info(`PR already exists: #${pr.number}`);
-                // Ensure close keyword is present
-                const title = pr.title || `content: generate from #${issue_number}`;
-                const body = (pr.body || '').includes(`#${issue_number}`) ? pr.body : `${pr.body ? pr.body + '\n\n' : ''}Closes #${issue_number}`;
-                await github.rest.pulls.update({ owner, repo, pull_number: pr.number, title, body });
-                core.setOutput('pr_number', String(pr.number));
-                core.setOutput('pr_url', pr.html_url);
-              } else {
-                const title = `content: generate from #${issue_number}`;
-                const body = `Closes #${issue_number}`;
-                const created = await github.rest.pulls.create({ owner, repo, title, head: branch, base: 'main', body });
-                core.info(`Opened PR #${created.data.number}`);
-                core.setOutput('pr_number', String(created.data.number));
-                core.setOutput('pr_url', created.data.html_url);
+              if (!isEdit) {
+                // For non-edit events, try to find and update an existing PR
+                const prs = await github.rest.pulls.list({ owner, repo, state: 'open', head: `${owner}:${branch}` });
+                if (prs.data.length > 0) {
+                  const pr = prs.data[0];
+                  core.info(`PR already exists: #${pr.number}`);
+                  const title = pr.title || `content: generate from #${issue_number}`;
+                  const body = (pr.body || '').includes(`#${issue_number}`) ? pr.body : `${pr.body ? pr.body + '\n\n' : ''}Closes #${issue_number}`;
+                  await github.rest.pulls.update({ owner, repo, pull_number: pr.number, title, body });
+                  core.setOutput('pr_number', String(pr.number));
+                  core.setOutput('pr_url', pr.html_url);
+                  return;
+                }
               }
+              // Create a new PR (always for edits, or if none exists for other events)
+              const suffix = isEdit ? ' (edit)' : '';
+              const title = `content: generate from #${issue_number}${suffix}`;
+              const body = `Closes #${issue_number}`;
+              const created = await github.rest.pulls.create({ owner, repo, title, head: branch, base: 'main', body });
+              core.info(`Opened PR #${created.data.number}`);
+              core.setOutput('pr_number', String(created.data.number));
+              core.setOutput('pr_url', created.data.html_url);
             } catch (e) {
               core.warning(`Could not create/update PR automatically: ${e.message}`);
               core.setOutput('pr_number', '');
@@ -134,12 +147,13 @@ jobs:
         uses: actions/github-script@v7
         env:
           ISSUE_NUMBER: ${{ github.event.issue.number }}
+          BRANCH: ${{ env.BRANCH }}
         with:
           script: |
             const issue_number = parseInt(process.env.ISSUE_NUMBER, 10);
             const owner = context.repo.owner;
             const repo = context.repo.repo;
-            const branch = `content/issue-${issue_number}`;
+            const branch = process.env.BRANCH || `content/issue-${issue_number}`;
             const url = `https://github.com/${owner}/${repo}/compare/main...${encodeURIComponent(branch)}?expand=1&title=${encodeURIComponent('content: generate from #' + issue_number)}&body=${encodeURIComponent('Closes #' + issue_number)}`;
             const body = `A branch has been pushed: \`${branch}\`\n\nGitHub Actions cannot open PRs in this repository. Please open a PR manually using this link:\n\n${url}`;
             await github.rest.issues.createComment({ owner, repo, issue_number, body });
