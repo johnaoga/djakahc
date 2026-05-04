@@ -2,6 +2,7 @@
   <section>
     <header class="main">
       <h1>{{ .Title }}</h1>
+      {{ with .Date }}<p style="color:#777; font-size:0.9rem; margin-top:0.25rem;">{{ i18n "published_on" }} {{ .Format "2006-01-02" }}</p>{{ end }}
     </header>
     {{ $img := .Params.featuredImage }}
     {{ with $img }}

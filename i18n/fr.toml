@@ -37,3 +37,6 @@ other = "Mini articles"
 
 [get_in_touch]
 other = "Contactez-nous"
+
+[published_on]
+other = "Publié le"

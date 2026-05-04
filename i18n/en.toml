@@ -37,3 +37,6 @@ other = "Mini Posts"
 
 [get_in_touch]
 other = "Get in touch"
+
+[published_on]
+other = "Published on"
