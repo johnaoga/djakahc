@@ -36,6 +36,7 @@ jobs:
               { name: 'type:gallery', color: 'fbca04', description: 'Website: Gallery Item' },
               { name: 'lang:fr', color: '5319e7', description: 'French content' },
               { name: 'lang:en', color: 'e99695', description: 'English content' },
+              { name: 'auto:companion', color: 'c5def5', description: 'Auto-created companion issue' },
             ];
             for (const l of toEnsure) {
               try {
@@ -157,3 +158,57 @@ jobs:
             const url = `https://github.com/${owner}/${repo}/compare/main...${encodeURIComponent(branch)}?expand=1&title=${encodeURIComponent('content: generate from #' + issue_number)}&body=${encodeURIComponent('Closes #' + issue_number)}`;
             const body = `A branch has been pushed: \`${branch}\`\n\nGitHub Actions cannot open PRs in this repository. Please open a PR manually using this link:\n\n${url}`;
             await github.rest.issues.createComment({ owner, repo, issue_number, body });
+
+      - name: Create companion issue in other language
+        if: github.event.action == 'opened' && !contains(github.event.issue.labels.*.name, 'auto:companion')
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const labels = (issue.labels || []).map(l => l.name);
+
+            // Determine current language from the issue body
+            const body = issue.body || '';
+            const langMatch = body.match(/^###\s+Language\n\n(\S+)/mi);
+            const currentLang = (langMatch && langMatch[1] || '').trim().toLowerCase();
+            if (currentLang !== 'fr' && currentLang !== 'en') {
+              core.info(`Language not detected or not fr/en (got '${currentLang}'), skipping companion.`);
+              return;
+            }
+            const otherLang = currentLang === 'fr' ? 'en' : 'fr';
+
+            // Swap the language in the issue body
+            const newBody = body.replace(
+              /^(###\s+Language\n\n)\S+/mi,
+              `$1${otherLang}`
+            );
+
+            // Build labels: swap lang label, add auto:companion, keep type labels
+            const newLabels = labels
+              .filter(l => !l.startsWith('lang:'))
+              .concat([`lang:${otherLang}`, 'auto:companion']);
+
+            const langTag = otherLang.toUpperCase();
+            const newTitle = `[${langTag}] ${issue.title}`;
+
+            const created = await github.rest.issues.create({
+              owner, repo,
+              title: newTitle,
+              body: newBody,
+              labels: newLabels,
+            });
+            core.info(`Created companion issue #${created.data.number} (${otherLang})`);
+
+            // Cross-reference both issues
+            await github.rest.issues.createComment({
+              owner, repo,
+              issue_number: issue.number,
+              body: `🌐 Companion issue for **${otherLang.toUpperCase()}** translation: #${created.data.number}`,
+            });
+            await github.rest.issues.createComment({
+              owner, repo,
+              issue_number: created.data.number,
+              body: `🌐 This is the **${otherLang.toUpperCase()}** companion of #${issue.number}`,
+            });
